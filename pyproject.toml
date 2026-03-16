@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cm4-skeleton"
+version = "0.1.0"
+description = "Raspberry Pi CM4 control skeleton with GPIO and dual UART workers."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "gpiozero>=2.0.1",
+  "pyserial>=3.5",
+]
+
+[project.scripts]
+cm4-skeleton = "cm4_skeleton.__main__:main"
+cm4-mock-serial = "cm4_skeleton.mock_serial_lab:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

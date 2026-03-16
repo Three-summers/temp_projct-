@@ -1,0 +1,86 @@
+{
+  "workflow": {
+    "rack_id": "RPTEST",
+    "it_port_name": "it_uart",
+    "barcode_port_name": "barcode_scanner",
+    "board_sensor_name": "board_sensor",
+    "manual_button_name": "manual_button",
+    "red_light_name": "red_light",
+    "yellow_light_name": "yellow_light",
+    "green_light_name": "green_light",
+    "white_light_name": "white_light",
+    "relay_name": "relay",
+    "scan_settle_seconds": 3.0,
+    "move_in_retry_seconds": 1.0,
+    "relay_pulse_seconds": 1.0,
+    "clean_duration_seconds": 150.0,
+    "monitor_interval_seconds": 0.05
+  },
+  "gpio_lines": [
+    {
+      "name": "board_sensor",
+      "pin": 7,
+      "direction": "in",
+      "active_low": true,
+      "initial_value": 0
+    },
+    {
+      "name": "red_light",
+      "pin": 11,
+      "direction": "out",
+      "active_low": true,
+      "initial_value": 1
+    },
+    {
+      "name": "yellow_light",
+      "pin": 9,
+      "direction": "out",
+      "active_low": true,
+      "initial_value": 1
+    },
+    {
+      "name": "green_light",
+      "pin": 10,
+      "direction": "out",
+      "active_low": true,
+      "initial_value": 1
+    },
+    {
+      "name": "white_light",
+      "pin": 22,
+      "direction": "out",
+      "active_low": true,
+      "initial_value": 1
+    },
+    {
+      "name": "relay",
+      "pin": 27,
+      "direction": "out",
+      "active_low": false,
+      "initial_value": 0
+    },
+    {
+      "name": "manual_button",
+      "pin": 8,
+      "direction": "in",
+      "active_low": false,
+      "initial_value": 0
+    }
+  ],
+  "serial_ports": [
+    {
+      "name": "it_uart",
+      "device": "/dev/ttyUSB0",
+      "baudrate": 9600,
+      "timeout": 0.2,
+      "read_size": 256
+    },
+    {
+      "name": "barcode_scanner",
+      "device": "/dev/ttyUSB1",
+      "baudrate": 9600,
+      "timeout": 0.2,
+      "read_size": 256
+    }
+  ]
+}
