@@ -54,8 +54,21 @@ class NullProtocolHandler(ProtocolHandler):
         self._logger.debug(
             "串口 %s 收到原始数据: %s",
             port_name,
-            payload.hex(" "),
+            format_frame_bytes(payload),
         )
+
+
+def format_frame_bytes(payload: bytes) -> str:
+    """同时输出十六进制、十进制和 ASCII 视图，便于现场对照日志。"""
+
+    return "hex=[%s] dec=[%s] ascii=[%s]" % (
+        payload.hex(" "),
+        ",".join(str(value) for value in payload),
+        "".join(
+            chr(value) if 32 <= value < 127 else "."
+            for value in payload
+        ),
+    )
 
 
 def _encode_ascii_field(value: str, length: int) -> bytes:
@@ -518,7 +531,7 @@ class Cm4WorkflowController(ProtocolHandler):
         self._logger.debug(
             "协议发送 %s: %s",
             port_name,
-            payload.hex(" "),
+            format_frame_bytes(payload),
         )
         self._send_callback(port_name, payload)
 

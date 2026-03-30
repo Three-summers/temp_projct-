@@ -16,6 +16,7 @@ from .protocol import (
     build_error_command_frame,
     build_start_clean_command_frame,
     extract_it_messages,
+    format_frame_bytes,
 )
 
 
@@ -30,7 +31,17 @@ AUTO_RESPONSE_MODES = ("none", "start-clean", "error")
 
 
 def parse_error_code(raw_value: str) -> int:
-    value = int(raw_value, 0)
+    normalized = raw_value.strip()
+    if not normalized:
+        raise ValueError("错误码不能为空。")
+
+    if normalized.lower().startswith("0x"):
+        value = int(normalized, 16)
+    elif normalized == "33":
+        value = 0x33
+    else:
+        value = int(normalized, 10)
+
     if not 0 <= value <= 0xFF:
         raise ValueError("错误码必须在 0x00 到 0xFF 之间。")
     return value
@@ -241,7 +252,7 @@ class MockSerialLab:
         self._logger.info(
             "SCAN -> APP: barcode=%s payload=%s",
             barcode,
-            payload.hex(" "),
+            format_frame_bytes(payload),
         )
 
     def send_start_clean(self) -> None:
@@ -353,7 +364,7 @@ class MockSerialLab:
             if not payload:
                 continue
 
-            self._logger.info("APP -> IT RAW: %s", payload.hex(" "))
+            self._logger.info("APP -> IT RAW: %s", format_frame_bytes(payload))
             self._it_buffer.extend(payload)
             try:
                 messages = extract_it_messages(self._it_buffer)
@@ -416,7 +427,11 @@ class MockSerialLab:
         it_serial.write(frame)
         if hasattr(it_serial, "flush"):
             it_serial.flush()
-        self._logger.info("IT -> APP: %s (%s)", frame.hex(" "), reason)
+        self._logger.info(
+            "IT -> APP: %s (%s)",
+            format_frame_bytes(frame),
+            reason,
+        )
 
     def _open_serial(self, device: str) -> object:
         try:

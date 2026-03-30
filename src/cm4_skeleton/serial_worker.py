@@ -6,7 +6,7 @@ import threading
 from collections.abc import Callable
 
 from .config import SerialPortConfig
-from .protocol import NullProtocolHandler, ProtocolHandler
+from .protocol import NullProtocolHandler, ProtocolHandler, format_frame_bytes
 
 
 SerialFactory = Callable[[SerialPortConfig], object]
@@ -122,7 +122,7 @@ class SerialWorker:
                 self._logger.debug(
                     "串口 %s TX: %s",
                     self._config.name,
-                    payload.hex(" "),
+                    format_frame_bytes(payload),
                 )
                 serial_connection.write(payload)
                 if hasattr(serial_connection, "flush"):
@@ -150,6 +150,6 @@ class SerialWorker:
                 self._logger.debug(
                     "串口 %s RX: %s",
                     self._config.name,
-                    payload.hex(" "),
+                    format_frame_bytes(payload),
                 )
                 self._protocol_handler.handle_received(self._config.name, payload)
