@@ -56,8 +56,8 @@
       "name": "relay",
       "pin": 27,
       "direction": "out",
-      "active_low": false,
-      "initial_value": 0
+      "active_low": true,
+      "initial_value": 1
     },
     {
       "name": "manual_button",

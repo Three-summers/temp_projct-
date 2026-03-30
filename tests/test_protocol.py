@@ -10,10 +10,13 @@ from cm4_skeleton.protocol import (
     MESSAGE_MOVE_IN,
     MESSAGE_MOVE_OUT,
     Cm4WorkflowController,
+    build_clean_start_frame,
     build_error_command_frame,
     build_move_in_frame,
+    build_move_out_frame,
     build_start_clean_command_frame,
     extract_it_messages,
+    format_frame_bytes,
 )
 
 
@@ -89,6 +92,54 @@ class ProtocolTests(unittest.TestCase):
         )
         self.assertEqual(len(parsed), 1)
         self.assertEqual(parsed[0].rack_id, "RPTEST")
+
+    def test_user_samples_match_current_protocol_definition(self) -> None:
+        move_in_frame = bytes(
+            [
+                1, 2, 16, 82, 80, 84, 69, 83, 84,
+                32, 32, 32, 32, 69, 66, 88, 56, 67,
+                77, 50, 46, 49, 32, 32, 32, 32, 32,
+                32, 32, 1, 3,
+            ]
+        )
+        start_clean_frame = bytes(
+            [1, 2, 1, 82, 80, 84, 69, 83, 84, 32, 32, 32, 32, 1, 3]
+        )
+        clean_start_frame = bytes(
+            [1, 2, 48, 82, 80, 84, 69, 83, 84, 32, 32, 32, 32, 1, 3]
+        )
+        move_out_frame = bytes(
+            [1, 2, 32, 82, 80, 84, 69, 83, 84, 32, 32, 32, 32, 1, 3]
+        )
+
+        self.assertEqual(build_move_in_frame("RPTEST", "EBX8CM2.1"), move_in_frame)
+        self.assertEqual(
+            build_start_clean_command_frame("RPTEST"),
+            start_clean_frame,
+        )
+        self.assertEqual(build_clean_start_frame("RPTEST"), clean_start_frame)
+        self.assertEqual(build_move_out_frame("RPTEST"), move_out_frame)
+
+        parsed_move_in = extract_it_messages(bytearray(move_in_frame))
+        self.assertEqual(len(parsed_move_in), 1)
+        self.assertEqual(parsed_move_in[0].rack_id, "RPTEST")
+        self.assertEqual(parsed_move_in[0].mask_id, "EBX8CM2.1")
+
+    def test_error_frame_logging_view_shows_hex_and_decimal_difference(self) -> None:
+        error_frame = build_error_command_frame("RPTEST", ERROR_BARCODE_MISMATCH)
+
+        self.assertEqual(
+            error_frame,
+            bytes([1, 2, 2, 82, 80, 84, 69, 83, 84, 32, 32, 32, 32, 51, 1, 3]),
+        )
+        self.assertNotEqual(
+            error_frame,
+            bytes([1, 2, 2, 82, 80, 84, 69, 83, 84, 32, 32, 32, 32, 33, 1, 3]),
+        )
+
+        formatted = format_frame_bytes(error_frame)
+        self.assertIn("hex=[01 02 02 52 50 54 45 53 54 20 20 20 20 33 01 03]", formatted)
+        self.assertIn("dec=[1,2,2,82,80,84,69,83,84,32,32,32,32,51,1,3]", formatted)
 
     def test_full_clean_cycle(self) -> None:
         hardware = FakeHardware()

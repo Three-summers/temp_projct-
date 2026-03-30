@@ -21,8 +21,16 @@ from cm4_skeleton.protocol import (
 
 class MockSerialLabTests(unittest.TestCase):
     def test_parse_error_code_supports_decimal_and_hex(self) -> None:
+        self.assertEqual(parse_error_code("33"), 0x33)
         self.assertEqual(parse_error_code("51"), 0x33)
         self.assertEqual(parse_error_code("0x33"), 0x33)
+
+    def test_parse_error_code_rejects_invalid_values(self) -> None:
+        with self.assertRaises(ValueError):
+            parse_error_code("")
+
+        with self.assertRaises(ValueError):
+            parse_error_code("0x100")
 
     def test_encode_barcode_payload_appends_selected_line_ending(self) -> None:
         self.assertEqual(encode_barcode_payload("EBX8CM2.1", "crlf"), b"EBX8CM2.1\r\n")
